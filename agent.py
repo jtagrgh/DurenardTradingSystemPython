@@ -27,8 +27,22 @@ class Agent():
     incoming_messages: list[Message] = field(default_factory=list[Message])
     outgoing_messages: list[Message] = field(default_factory=list[Message])
 
+    def emit(self, text: str) -> None:
+        message = Message(timestamp=self.timestamps[-1] if self.timestamps else datetime(year=2000, month=1, day=1),
+                          originator=self.name,
+                          recipients=self.recipients_list,
+                          text=text)
+        self.events_queue.append(message)
+        self.outgoing_messages.append(message)
+
     def observe(self, event: Event) -> bool:
-        return True
+        match(event):
+            case MarketUpdate():
+                return True
+            case Message():
+                return self.name in event.recipients and self.name != event.originator
+            case _:
+                return False
     
     def pre_process(self, event: Event) -> None:
         pass
@@ -44,17 +58,15 @@ class Agent():
                     self.fitnesses.append(0)
                 self.timestamps.append(event.timestamp)
                 self.reval_prices.append(event.price)
+            case Message():
+                self.incoming_messages.append(event)
             case _:
                 pass
 
         self.pre_process(event)
 
     def update_main(self, event: Event) -> None:
-        match(event):
-            case MarketUpdate():
-                self.positions.append(0)
-            case _:
-                pass
+        raise NotImplementedError()
 
     def update_after(self, event: Event) -> None:
         match(event):

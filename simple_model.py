@@ -11,12 +11,15 @@ def price(event: MarketUpdate) -> float:
     return event.price
 
 
-@dataclass
+@dataclass(kw_only=True)
 class SimpleModel(FSMAgent):
     length: int
     counter: int = 0
     moving_average: float = 0
     name: str = field(init=False)
+    transitions: list[Transition[float, MarketUpdate]] = field(init=False)
+    states: list[str] = field(init=False)
+    current_state: str = field(init=False)
 
     def __post_init__(self):
         self.name = f'simple_model_{self.length}'
@@ -27,6 +30,13 @@ class SimpleModel(FSMAgent):
             case MarketUpdate():
                 self.counter = len(self.reval_prices)
                 self.moving_average = mean(self.reval_prices[-self.length:])
+            case _:
+                pass
+
+    def post_process(self, event: Event) -> None:
+        match(event):
+            case MarketUpdate():
+                print(f'Agent <{self.name}> consumed market update with price <{event.price}>')
             case _:
                 pass
 

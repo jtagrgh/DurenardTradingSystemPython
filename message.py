@@ -6,3 +6,5 @@ from dataclasses import dataclass
 @dataclass
 class Message(Event):
     text: str
+    originator: str
+    recipients: list[str]

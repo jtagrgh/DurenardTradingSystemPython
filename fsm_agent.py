@@ -5,7 +5,7 @@ from agent import Agent
 from market_update import MarketUpdate
 
 
-@dataclass
+@dataclass(kw_only=True)
 class FSMAgent(FSM, Agent):
     states: list[str]
 
@@ -13,10 +13,12 @@ class FSMAgent(FSM, Agent):
         pass
 
     def update_main(self, event: Event) -> None:
+        self.set_fsm()
+
         match(event):
             case MarketUpdate():
-                self.set_fsm()
                 self.operate_fsm(event)
                 self.states.append(self.current_state)
             case _:
                 pass
+            
