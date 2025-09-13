@@ -4,7 +4,7 @@ from message import Message
 from market_update import MarketUpdate
 from event import Event
 from trade import Trade
-from typing import Callable
+from typing import Callable, Any
 from trade_stat import TradeStat
 
 
@@ -27,11 +27,12 @@ class Agent():
     incoming_messages: list[Message] = field(default_factory=list[Message])
     outgoing_messages: list[Message] = field(default_factory=list[Message])
 
-    def emit(self, text: str) -> None:
+    def emit(self, text: str = '', data: Any = None) -> None:
         message = Message(timestamp=self.timestamps[-1] if self.timestamps else datetime(year=2000, month=1, day=1),
                           originator=self.name,
                           recipients=self.recipients_list,
-                          text=text)
+                          text=text,
+                          data = data)
         self.events_queue.append(message)
         self.outgoing_messages.append(message)
 

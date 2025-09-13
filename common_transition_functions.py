@@ -9,3 +9,6 @@ def never(_: Any) -> bool:
 
 def price (event: MarketUpdate) -> float:
     return event.price
+
+def always(_: Any) -> bool:
+    return True
